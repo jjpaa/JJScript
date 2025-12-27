@@ -9,3 +9,9 @@ printl ("hello");
 printl ( "Hello");
 printl ( "Hell o");
 printl ( " Hel l o " ) ;
+
+string myString = "My String Value, Stored into variable";
+printl(myString);
+
+string myString = "Let's change it";
+printl(myString);

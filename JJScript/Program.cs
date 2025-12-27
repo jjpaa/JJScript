@@ -5,6 +5,10 @@
         public required string Expected;
         public required string Was;
     }
+    public class DataException : Exception
+    {
+        public required string ExtraMessage;
+    }
 
     public class Program
     {
@@ -15,6 +19,8 @@
         public static bool lineDone = false;
         public static bool trimString = true;
         public static string modifiedLine = "";
+
+        public static Dictionary<string,string> StringsDictionary = new Dictionary<string,string>();
 
         static void Main(string[] args)
         {
@@ -56,12 +62,22 @@
                 Console.WriteLine("");
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("");
+                Console.WriteLine("Statement string was: " + statementString);
+            }
+            catch (DataException ex)
+            {
+                Console.WriteLine($"Data exception. {ex.ExtraMessage} on input row: {line}, char {charCounter}");
+                Console.WriteLine(ex.ToString());
+                Console.WriteLine("");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Statement string was: " + statementString);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 Console.WriteLine("");
                 Console.WriteLine(ex.Message);
+                Console.WriteLine("Statement string was: " + statementString);
             }
 
             Console.WriteLine("Program ended");
@@ -103,6 +119,11 @@
                     {
                         lineDone = true;
                         break;
+                    }
+
+                    if (modifiedLine.StartsWith("string"))
+                    {
+                        trimString = false;
                     }
 
                     var firstChar = modifiedLine[0];
@@ -179,9 +200,13 @@
         {
             // This is statement
 
-            if (statementString.StartsWith("printl(\""))
+            if (statementString.StartsWith("printl("))
             {
                 HandlePrintLn();
+            }
+            else if (statementString.StartsWith("string "))
+            {
+                HandleString();
             }
             else
             {
@@ -189,23 +214,74 @@
             }
         }
 
+        private static void HandleString()
+        {
+            try
+            {
+                // Start
+                string afterSplit = statementString.Split("string ").Last();
+
+                // Seek the name part
+                var splits = afterSplit.Split(" = ");
+                string stringName = splits.First();
+                string TheActualText = splits.Last();
+
+                // Check if syntax is correct
+                var temp = TheActualText.Trim('"','\\');
+
+                var stringItselfAndStatementEnding = temp.Split('"');
+                var stringItself = stringItselfAndStatementEnding.First();
+
+                try
+                {
+                    // All good
+                    StringsDictionary[stringName] = stringItself;
+                }
+                catch (Exception)
+                {
+                    throw new DataException() { ExtraMessage = "String Dictionary failed" };
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private static void HandlePrintLn()
         {
-            // Start
-            string afterSplit = statementString.Split("printl(\"").Last();
-            
-            // Stuff to print
-            var splits = afterSplit.Split("\"");
-            
-            // Check that ending is right
-            Console.WriteLine(splits[0]);
-            if(splits[1].First() == ')')
+            string afterSplit = statementString.Split("printl(").Last();
+
+            // Inline string
+            if(afterSplit.StartsWith("\""))
             {
-                // All good
+                var splitsStrings = afterSplit.Split("\"");
+
+                if (splitsStrings.Last() == ")")
+                {
+                    // All good
+                    Console.WriteLine(splitsStrings[1]);
+                }
+                else
+                {
+                    throw new SyntaxException() { Expected = ")", Was = splitsStrings.Last()};
+                }
             }
+
+            // Variable string
             else
             {
-                throw new SyntaxException() { Expected = ")", Was = splits[1].First().ToString() };
+                // Try to find string from strings and then print it.
+                var stringName = afterSplit.Split(")").First();
+                if (StringsDictionary.ContainsKey(stringName))
+                {
+                    StringsDictionary.TryGetValue(stringName, out var value);
+                    Console.WriteLine(value);
+                }
+                else
+                {
+                    throw new DataException() { ExtraMessage = $"<{stringName} does not exists in known strings>"};
+                }
             }
         }
     }

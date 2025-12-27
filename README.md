@@ -18,5 +18,8 @@ Toy script language built on top of .NET
 ## Variables
 
 ### String
+- Stores string into string variable
+- Usage example
+	- string myString = "Hello!";
 - Bug: Strings can't have whitespaces
 	- Design flaw in the line/input handling

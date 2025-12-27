@@ -38,12 +38,20 @@
             catch (SyntaxException ex)
             {
                 Console.WriteLine($"Print statement, expexting {ex.Expected}, but was {ex.Was} on input row: {line}, char {charCounter}");
+                Console.WriteLine("");
                 Console.WriteLine(ex.ToString());
+                Console.WriteLine("");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                Console.WriteLine("");
+                Console.WriteLine(ex.Message);
             }
+
+            Console.WriteLine("Program ended");
         }
 
         static void IterateThroughTheLine(string filePath)
@@ -94,8 +102,9 @@
                             }
                             break;
                         case ';':
-                            // Statement done?
                             HandleStatement();
+                            statementString = "";
+                            lineDone = true;
                             break;
                         case ' ':
                             modifiedLine = modifiedLine.Substring(1);
@@ -122,48 +131,10 @@
         private static void HandleStatement()
         {
             // This is statement
-            if (modifiedLine.StartsWith("print("))
-            {
-                string afterSplit = modifiedLine.Split("print(").Last();
-                if (afterSplit.First() == '"')
-                {
-                    // string starts find where it ends
-                    bool timeToStop = false;
 
-                    foreach (char c in afterSplit)
-                    {
-                        if (timeToStop == false)
-                        {
-                            if (c != '"')
-                            {
-                                Console.Write(c);
-                            }
-                            else
-                            {
-                                //This string is done
-                                timeToStop = true;
-                            }
-                        }
-                        else
-                        {
-                            if (c == ')')
-                            {
-                                // All good
-                                lineDone = true;
-                                break;
-                            }
-                            else
-                            {
-                                throw new SyntaxException() { Expected = ")", Was = c.ToString() };
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Not string yet
-                    throw new SyntaxException() { Expected = "\"", Was = afterSplit.First().ToString() };
-                }
+            if (statementString.StartsWith("print(\""))
+            {
+                HandlePrint();
             }
             else
             {
@@ -171,7 +142,24 @@
             }
         }
 
-
-
+        private static void HandlePrint()
+        {
+            // Start
+            string afterSplit = statementString.Split("print(\"").Last();
+            
+            // Stuff to print
+            var splits = afterSplit.Split("\"");
+            
+            // Check that ending is right
+            Console.WriteLine(splits[0]);
+            if(splits[1].First() == ')')
+            {
+                // All good
+            }
+            else
+            {
+                throw new SyntaxException() { Expected = ")", Was = splits[1].First().ToString() };
+            }
+        }
     }
 }

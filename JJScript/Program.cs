@@ -13,6 +13,7 @@
         public static long charCounter = 0;
         public static string statementString = "";
         public static bool lineDone = false;
+        public static bool trimString = true;
         public static string modifiedLine = "";
 
         static void Main(string[] args)
@@ -88,16 +89,22 @@
                                     break;
                                 case '\t':
                                     // tab
+                                    // This is inside of print statement. Do not print
+                                    if (!trimString)
+                                    {
+                                        statementString += firstChar;
+                                        statementString += modifiedLine[1];
+                                    }
                                     modifiedLine = modifiedLine.Substring(2);
                                     break;
                                 case '\n':
                                     // new line
                                     break;
                                 case '\"':
-                                    // double quete
+                                    //trimString = !trimString;
                                     break;
                                 case '\'':
-                                    // double quete
+                                    // apostrophe
                                     break;
                             }
                             break;
@@ -106,7 +113,18 @@
                             statementString = "";
                             lineDone = true;
                             break;
+                        case '"':
+                            trimString = !trimString;
+                            statementString += firstChar;
+                            modifiedLine = modifiedLine.Substring(1);
+                            break;
                         case ' ':
+
+                            if(!trimString)
+                            {   
+                                // This is inside of print statement. Do not print
+                                statementString += firstChar;
+                            }
                             modifiedLine = modifiedLine.Substring(1);
                             break;
                         case '/':
@@ -132,9 +150,9 @@
         {
             // This is statement
 
-            if (statementString.StartsWith("print(\""))
+            if (statementString.StartsWith("printl(\""))
             {
-                HandlePrint();
+                HandlePrintLn();
             }
             else
             {
@@ -142,10 +160,10 @@
             }
         }
 
-        private static void HandlePrint()
+        private static void HandlePrintLn()
         {
             // Start
-            string afterSplit = statementString.Split("print(\"").Last();
+            string afterSplit = statementString.Split("printl(\"").Last();
             
             // Stuff to print
             var splits = afterSplit.Split("\"");

@@ -1,5 +1,11 @@
 // This is comment
 // int x = 10;
 
-print("Hello World");
-print("Hello World2");
+printl("Hello World");
+printl("Hello World2");
+
+printl ("hello");
+
+printl ( "Hello");
+printl ( "Hell o");
+printl ( " Hell o");

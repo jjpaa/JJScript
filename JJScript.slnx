@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="JJScript/JJScript.csproj" />
   <Project Path="SciptTests/SciptTests.csproj" Id="4e983426-e801-488b-9147-0c8a3c587507" />
 </Solution>

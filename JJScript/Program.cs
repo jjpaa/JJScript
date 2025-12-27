@@ -6,7 +6,7 @@
         public required string Was;
     }
 
-    internal class Program
+    public class Program
     {
         public static long line = 1;
         public static string originalLine = "";
@@ -18,7 +18,19 @@
 
         static void Main(string[] args)
         {
+            //Console.WriteLine("Printing arguments");
 
+            //foreach (var item in args)
+            //{
+            //    Console.WriteLine(item);
+            //}
+            //Console.WriteLine("Stopped print arguments");
+
+            Run(args);
+        }
+
+        public static void Run(string[] args)
+        {
             try
             {
                 string filePath = "";
@@ -34,7 +46,7 @@
 
                 line = 1;
 
-                IterateThroughTheLine(filePath);
+                ProcessInput(filePath);
             }
             catch (SyntaxException ex)
             {
@@ -55,11 +67,28 @@
             Console.WriteLine("Program ended");
         }
 
-        static void IterateThroughTheLine(string filePath)
+        static void ProcessInput(string filePathOrInput)
         {
-            IEnumerable<string> lines = File.ReadLines(filePath);
+            IEnumerable<string> lines = new List<string>();
+
+            // Check if input is actually file or just inline string
+            if (File.Exists(filePathOrInput))
+            {
+                lines = File.ReadLines(filePathOrInput);
+            }
+            //else
+            //{
+            //    //Console.WriteLine("Inline execution");
+            //    var l = new List<string>();
+            //    l.Add(filePathOrInput);
+            //    lines = l;
+            //}
+
+            //IterateThroughTheLine
             foreach (var inputLine in lines)
             {
+                //Console.WriteLine("Input line: " + inputLine);
+
                 charCounter = 0;
                 originalLine = inputLine;
                 lineDone = false;
@@ -78,7 +107,7 @@
 
                     var firstChar = modifiedLine[0];
 
-                    switch(firstChar)
+                    switch (firstChar)
                     {
                         // Escpace characters
                         case '\\':
@@ -120,8 +149,8 @@
                             break;
                         case ' ':
 
-                            if(!trimString)
-                            {   
+                            if (!trimString)
+                            {
                                 // This is inside of print statement. Do not print
                                 statementString += firstChar;
                             }
